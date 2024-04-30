@@ -1,0 +1,72 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{62E4D73E-1E36-4F86-8F49-D79C52C73057}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="wgc.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Console\wconapi.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Chdip\chdip.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Chdip\wgchost.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="wgc">
+			<MSBuild Projects="wgc.dproj"/>
+		</Target>
+		<Target Name="wgc:Clean">
+			<MSBuild Targets="Clean" Projects="wgc.dproj"/>
+		</Target>
+		<Target Name="wgc:Make">
+			<MSBuild Targets="Make" Projects="wgc.dproj"/>
+		</Target>
+		<Target Name="wconapi">
+			<MSBuild Projects="Console\wconapi.dproj"/>
+		</Target>
+		<Target Name="wconapi:Clean">
+			<MSBuild Targets="Clean" Projects="Console\wconapi.dproj"/>
+		</Target>
+		<Target Name="wconapi:Make">
+			<MSBuild Targets="Make" Projects="Console\wconapi.dproj"/>
+		</Target>
+		<Target Name="chdip">
+			<MSBuild Projects="Chdip\chdip.dproj"/>
+		</Target>
+		<Target Name="chdip:Clean">
+			<MSBuild Targets="Clean" Projects="Chdip\chdip.dproj"/>
+		</Target>
+		<Target Name="chdip:Make">
+			<MSBuild Targets="Make" Projects="Chdip\chdip.dproj"/>
+		</Target>
+		<Target Name="wgchost">
+			<MSBuild Projects="Chdip\wgchost.dproj"/>
+		</Target>
+		<Target Name="wgchost:Clean">
+			<MSBuild Targets="Clean" Projects="Chdip\wgchost.dproj"/>
+		</Target>
+		<Target Name="wgchost:Make">
+			<MSBuild Targets="Make" Projects="Chdip\wgchost.dproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="wgc;wconapi;chdip;wgchost"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="wgc:Clean;wconapi:Clean;chdip:Clean;wgchost:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="wgc:Make;wconapi:Make;chdip:Make;wgchost:Make"/>
+		</Target>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+	</Project>

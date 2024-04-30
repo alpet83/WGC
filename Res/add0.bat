@@ -1,0 +1,1 @@
+@copy /b %1 + /b zerro.bin %1

@@ -1,0 +1,188 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{5D0F5B1D-EF95-4D71-93F1-922400CFC70C}</ProjectGuid>
+			<MainSource>wgc.dpr</MainSource>
+			<Config Condition="'$(Config)'==''">Debug</Config>
+			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DependencyCheckOutputName>wgc.exe</DCC_DependencyCheckOutputName>
+			<DCC_ImageBase>00400000</DCC_ImageBase>
+			<DCC_Platform>x86</DCC_Platform>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+		</PropertyGroup>
+		<ItemGroup>
+			<DelphiCompile Include="wgc.dpr">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="ChForm.pas">
+				<Form>MForm</Form>
+			</DCCReference>
+			<DCCReference Include="ChCmd.pas"/>
+			<DCCReference Include="ChAbout.pas">
+				<Form>AboutBox</Form>
+			</DCCReference>
+			<DCCReference Include="ChDecomp.pas"/>
+			<DCCReference Include="ChText.pas">
+				<Form>medit</Form>
+			</DCCReference>
+			<DCCReference Include="ChLang.pas"/>
+			<DCCReference Include="TlHelpEx.pas"/>
+			<DCCReference Include="ChCodes.pas">
+				<Form>fcodes</Form>
+			</DCCReference>
+			<DCCReference Include="StrSrv.pas"/>
+			<DCCReference Include="ChHelp.pas">
+				<Form>HelpForm</Form>
+			</DCCReference>
+			<DCCReference Include="ChPlugin.pas"/>
+			<DCCReference Include="ChShare.pas"/>
+			<DCCReference Include="vmisk.pas"/>
+			<DCCReference Include="Dialogs\ConfDlg.pas">
+				<Form>ConfirmDlg</Form>
+			</DCCReference>
+			<DCCReference Include="ChMsg.pas"/>
+			<DCCReference Include="ChSpy.pas"/>
+			<DCCReference Include="Dialogs\ChView.pas">
+				<Form>GVfo rm</Form>
+			</DCCReference>
+			<DCCReference Include="ChConsole.pas"/>
+			<DCCReference Include="spthread.pas"/>
+			<DCCReference Include="Chdip\scaners\mirror.pas"/>
+			<DCCReference Include="ChSimp.pas">
+				<Form>sform</Form>
+			</DCCReference>
+			<DCCReference Include="Dialogs\Scandlg.pas">
+				<Form>scpdlg</Form>
+			</DCCReference>
+			<DCCReference Include="ChBtns.pas"/>
+			<DCCReference Include="ChConst.pas"/>
+			<DCCReference Include="prcsmap.pas"/>
+			<DCCReference Include="ChTrain.pas">
+				<Form>FormConstructor</Form>
+			</DCCReference>
+			<DCCReference Include="Engine\engine.pas"/>
+			<DCCReference Include="Engine\gtrainer.pas"/>
+			<DCCReference Include="Common\rects.pas"/>
+			<DCCReference Include="Dialogs\ChModeDlg.pas">
+				<Form>ModeSelDlg</Form>
+			</DCCReference>
+			<DCCReference Include="Common\ListViewXP.pas"/>
+			<DCCReference Include="Dialogs\HotKeyDlg.pas">
+				<Form>HKeyDlg</Form>
+			</DCCReference>
+			<DCCReference Include="Common\KbdAPI.pas"/>
+			<DCCReference Include="Console\conapi.pas"/>
+			<DCCReference Include="Console\wconapi.pas"/>
+			<DCCReference Include="Common\gditools.pas"/>
+			<DCCReference Include="Common\KbdDefs.pas"/>
+			<DCCReference Include="Common\strtools.pas"/>
+			<DCCReference Include="Frames\ChOptions.pas">
+				<Form>frmOptions</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Frames\ChSettings.pas"/>
+			<DCCReference Include="Frames\CheatTable.pas">
+				<Form>frmAddrs</Form>
+			</DCCReference>
+			<DCCReference Include="ChLog.pas"/>
+			<DCCReference Include="Common\netipc.pas"/>
+			<DCCReference Include="Common\socketapi.pas"/>
+			<DCCReference Include="Common\ChIcons.pas"/>
+			<DCCReference Include="Common\ChValues.pas"/>
+			<DCCReference Include="Common\ChPointers.pas"/>
+			<DCCReference Include="Common\ChClient.pas"/>
+			<DCCReference Include="Chdip\ChPStools.pas"/>
+			<DCCReference Include="Common\SimpleArray.pas"/>
+			<DCCReference Include="Common\PSLists.pas"/>
+			<DCCReference Include="Common\ShareData.pas"/>
+			<DCCReference Include="Common\LocalIPC.pas"/>
+			<DCCReference Include="Common\DataProvider.pas"/>
+			<DCCReference Include="splash.pas">
+				<Form>frmSplash</Form>
+			</DCCReference>
+			<DCCReference Include="Common\ChStrings.pas"/>
+			<DCCReference Include="Console\ConThread.pas"/>
+			<DCCReference Include="Common\winfuncs.pas"/>
+			<DCCReference Include="Console\vconsole.pas"/>
+			<DCCReference Include="Console\conmgr.pas"/>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType>VCLApplication</Borland.ProjectType>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Source>
+						<Source Name="MainSource">wgc.dpr</Source>
+					</Source>
+					<Parameters>
+						<Parameters Name="UseLauncher">False</Parameters>
+						<Parameters Name="LoadAllSymbols">True</Parameters>
+						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+					</Parameters>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">2</VersionInfo>
+						<VersionInfo Name="MinorVer">83</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">True</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1049</VersionInfo>
+						<VersionInfo Name="CodePage">1251</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName"/>
+						<VersionInfoKeys Name="FileDescription">WGC binary file.</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">2.83.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName">Winner Game Cheater</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalCopyright">Copyright © by ALPET 2006</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename">wgc.exe</VersionInfoKeys>
+						<VersionInfoKeys Name="ProductName">$Winner Game Cheater</VersionInfoKeys>
+						<VersionInfoKeys Name="ProductVersion">2.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Build">17.04.2006</VersionInfoKeys>
+						<VersionInfoKeys Name="SpecialBuild"/>
+					</VersionInfoKeys>
+				</Delphi.Personality>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+	</Project>

@@ -1,0 +1,259 @@
+.386
+PAGE 255, 255
+.model flat, PASCAL
+
+INCLUDE extvars.inc
+INCLUDE fscan.inc			; General Macros File
+EXTRN  sdw:DWORD			; Функция
+
+.data
+;align 16                ; выровненые данные
+
+
+temp                    dd              0
+                        dd              0
+pshift                  dd              0
+savesp                  dd              ?
+savebp                  dd              ?
+srcptr                  dd              0
+                        ; Данные результата, посути структура
+
+
+;DATA                    ENDS
+;assume cs:_DATA
+
+CODE                    SEGMENT PAGE "_TEXT"
+                        nn = 0
+                        nc = 0
+
+;---------------------- ----------------------- ---------------------------
+; Инициация динамического кода и переменных
+InitDS                  proc
+                        mov                     al, setOP
+                        nm = 0;
+                        ; МОДИФИКАЦИЯ 96-х SETCC КОММАНД
+                        REPT                    60h
+                        setscc                  %nm
+                        nm = nm + 1
+                        ENDM
+                        ret
+InitDS                  endp
+ALIGN 32                ; Выравнивание
+;---------------------- ----------------------- ---------------------------
+ScanDWORDS              PROC STDCALL buff:DWORD, rslt:DWORD, bsize:DWORD
+                        push                    eax ebx ecx edx esi edi 
+                        ; Loading buffer info
+			mov                     esi, buff      ; Предел по данным                        
+                        mov                     ecx, bsize                        
+                        mov                     edi, rslt
+                        mov                     savebp, ebp     ; Сохранение ebp
+                        add                     ecx, esi        ; послед. адрес
+			xor                     ebp, ebp
+			mov			eax, pshift
+			mov                     savesp, esp
+                        ; три самые тяжелыe комманды
+			mov                     dword ptr [eax + 02 + dcode010], ecx ; Модификация кода
+			; очистка
+			mov                     dword ptr [edi + 00h], ebp
+			mov                     dword ptr [edi + 04h], ebp
+                        mov                     esp, dword ptr [ExampleMin]
+                        mov                     ebp, [esi + 40h]
+
+;---------------------- ----------------------- ---------------------------
+
+                        nn = 0
+; ОСНОВНОЙ ЦИКЛ СКАНИРОВАНИЯ
+scan:
+			mov                     eax, [esi + 3Ch]
+                        mov                     temp [0], eax
+
+                        mov                     ecx, [esi + 40h] ; Чижелая инструкця
+                        mov                     temp [4], ecx
+
+                        ; Начало сравнений
+                        INDEX = 0
+                        REPT                    0Dh
+                        Compset                 a, 0                        
+                        Compset                 c, 10h
+                        Compset                 d, 20h                        
+                        Compset                 b, 30h
+                        INDEX = INDEX + 1
+                        ENDM
+;---------------------- ----------------------- ---------------------------
+                        INDEX = 0;
+						; Чтение остатков смещений до 63
+                        Compset                 a, 0Dh
+                        Compset                 c, 1Dh
+                        Compset                 d, 2Dh
+                        cmp                     temp [1], esp     ; esi + 3Dh
+                        regst                   %nn, b            ; Добавления бита в edx
+                        Compset                 a, 0Eh
+                        Compset                 c, 1Eh
+                        Compset                 d, 2Eh,                                                
+                        cmp                     temp [2], esp     ; esi + 3Eh
+                        regst                   %nn, b
+                        ; Чтение последних слов и смещение                        
+                        Compset                 a, 0Fh, 17        ; 16 middle bits - set
+                        Compset                 c, 1Fh            ; 16 high bits - set
+                        Compset                 d, 2Fh, 17
+                        cmp                     temp [3], esp     ; esi + 3Fh
+                        regst                   %nn, b            ; high 16 bits - set for [30..3F]
+;=============== ДОУПАКОВКА МНОЖЕСТВ --------------------------------------------------
+
+                        mov                     cx, ax    ; Терепь eax свободен, а ecx забит
+                        mov                     bx, dx    ; тоже самое с ebx и edx
+;---------------------- ----------------------- --------------------------
+                ; инвертирование по соглашению, побыстрее чем not
+                        mov                     eax, [edi + 4] ; counter
+                        xor                     ecx, -1
+                        xor                     ebx, -1
+                        xor                     edx, edx
+                        add                     esi, 40h   ; Наращивание указателя src 1
+;---------------------- ----------------------- ---------------------------
+                        ; RLE PACKING
+                        ; Проверка множеств
+                        cmp                     [edi], ecx
+                        je                      nsave1
+;---------------------- ----------------------- ---------------------------
+                        ; сохранение текущего счетчика
+                        mov                     [edi + 4], eax
+                        add                     edi, 8
+                        ; cохранение множества
+                        mov                     dword ptr [edi], ecx
+                        ; сброс счетчика в 0
+                        xor                     eax, eax
+nsave1:
+                        ; инкремент счетчика
+                        inc                     eax
+;---------------------- ----------------------- ---------------------------
+                        ; проверка с след. множества
+                        cmp                     ecx, ebx
+                        je                      nsave2
+                        ; сохранение текущего счетчика (1)
+                        mov                     [edi + 4], eax
+                        add                     edi, 8
+                        ; cохранение этого множества
+                        mov                     [edi], ebx
+                        ; сброс счетчика след. элемента = 1
+                        mov                     word ptr [edi + 0Ch], 0
+                        xor                     eax, eax
+nsave2:
+ALIGN 4
+                        inc                     ax
+dcode010:
+                        cmp                     esi, 12345678h
+                        ; общее сохранение счетчика
+                        mov                     [edi + 4], eax
+                        jb                      scan
+                        ;// Context restoring
+endscan:
+                        xor                     eax, eax
+                        mov                     ebp, savebp
+                        mov                     esp, savesp   ; Восстановление esp перед вызовом
+                        mov                     esi, rslt
+                        xor                     eax, eax        ; очистка eax
+                        cmp                     dword ptr [edi], 0
+                        setne                   al              ; Последние множества - не нулевые
+                        shl                     al, 3           ; 8 байт - размер элемента
+                        add                     edi, eax        ; добавление к пределу = размер
+                        sub                     edi, esi        ; -= @rslt
+                        shr                     edi, 3
+                        ; Кол-во элементов (по 8 байт) архива
+                        mov                     _isize, 8
+                        mov                     _lcount, edi
+                        mov                     _packalg, RLESET
+                        pop                     edi esi edx ecx ebx eax
+                        ret
+ScanDWORDS              ENDP                   ; ScanDWORDS
+                        ; Для смещения однако
+                        db                      1024 dup (90h)
+
+;---------------------- ----------------------- ---------------------------
+SieveDWORDS             PROC  uses eax ebx ecx edx esi edi ebp,   buff:DWORD, setlst:DWORD, dst:DWORD, count:DWORD
+; На входе только 32-битные множества (+ кол-во) 
+; индексация осуществляется: esi@buff, ebx@setlst (src), edi@setlst(dst)
+; данные в setlst - не сжаты, поэтому после пользования затираются
+                        pushad
+                        mov                     ebx, setlst       ; исходный архив
+                        mov                     esi, buff
+                        mov                     edi, dst          ; назначение (2-ная упаковка)
+                        ; кол-во элементов списка множеств
+                        mov                     ecx, count
+                        shl                     ecx, 2          ; * 4, кол-во в размер    
+                        add                     ecx, ebx          ; предел
+                        mov                     dword ptr [dcode011+2], ecx
+                        mov                     savesp, esp
+                        mov                     savebp, ebp
+                        mov                     esp, dword ptr [exampleMin]   ;; загрузка образца
+                        xor                     ebp, ebp                      ;; обнуление счетчика
+                        mov                     dword ptr [edi + 4], ebp
+                        mov                     dword ptr [edi + 12], ebp      ;; инициация
+;---------------------- ----------------------- ---------------------------
+sieve:
+                        test                    byte ptr [esi + 40h],1
+                        ; получение множества методами поиска
+                        ; за итерацию проверяется 32 значения
+                        n = 1
+                        Compset                 a, 00h
+                        Compset                 c, 10h
+
+                        REPT                    14
+                        ; не оптимизированный код
+                        Compset                 a, n
+                        o = n + 10h
+                        Compset                 c, o
+                        n = n + 1
+                        ENDM
+                        Compset                 a, 0Fh, 17
+                        Compset                 c, 1Fh, 1
+
+						; совмещение множеств в ecx
+                        mov                     cx, ax ; теперь в ecx - 32 битное множество
+                        ; отсев результатов
+                        and                     ecx, dword ptr [ebx]
+                        xor                     eax, eax
+                        add                     esi, 20h        ; cмещ. указателя данных
+                        add                     ebx, 4          ; смещ. указателя источника
+                        cmp                     dword ptr [edi], ecx
+                        setne                   al
+                        ; определение указателя
+                        lea                     edi, [edi + eax * 8]
+                        ; сохранение множества
+                        mov                     dword ptr [edi], ecx
+                        ; инкремент счетчика
+                        add                     word ptr [edi + 4], 1
+                        ; предварительная инициация счетчика
+                        mov                     word ptr [edi + 12], 0
+;---------------------- ----------------------- ---------------------------
+dcode011:
+                        cmp                     ebx, 12345678h
+                        jb                      sieve
+                        xor                     eax, eax
+                        ; сохранение последнего множества и счетчика
+                        mov                     dword ptr [edi + 0], ecx
+                        mov                     dword ptr [edi + 4], ebp
+                        cmp                     ecx, 0
+                        setne                   al
+                        shl                     eax, 3          ; * 8
+                        add                     edi, eax
+                        ; восстановление стековых указателей
+                        mov                     ebp, savebp
+                        mov                     esp, savesp
+                        mov                     esi, setlst
+                        sub                     edi, dst
+                        shr                     edi, 3          ; div 8
+                        ; размер элемента архива
+                        mov                     _isize, 8
+                        ; кол-во элементов архива
+                        mov                     _lcount, edi
+                        mov                     _packalg, RLESET 
+                        popad
+                        ret             
+SieveDWORDS             ENDP                    ; SieveDWORDS
+;---------------------- ----------------------- ---------------------------
+CODE                    ENDS
+public          InitDS
+public          ScanDWORDS
+public          SieveDWORDS
+
+END
